@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Смотреть - Жаркое Соперничество</title>
+
+    <!-- ФАВИКОН (иконка вкладки) -->
+    <link rel="icon" type="image/svg+xml" href="heatedrivarly.svg">
+    <link rel="alternate icon" type="image/png" href="favicon.png"> <!-- на случай, если svg не поддерживается -->
+    <link rel="apple-touch-icon" href="heatedrivarly.svg">
+
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background: #0a0a0a; color: #fff; overflow-x: hidden; }
+
+        /* Меню */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .logo-nav img { height: 40px; width: auto; }
+        .nav-right { display: flex; gap: 30px; }
+        .nav-btn {
+            background: none; border: none; color: #fff; font-size: 16px;
+            cursor: pointer; text-transform: lowercase; transition: all 0.3s ease;
+            position: relative; padding: 5px 0;
+        }
+        .nav-btn::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 0; height: 2px;
+            background: #f4c542; transition: width 0.3s ease;
+        }
+        .nav-btn:hover::after { width: 100%; }
+
+        /* Контент */
+        .content { padding: 120px 50px 50px; max-width: 1400px; margin: 0 auto; }
+        .back-btn {
+            display: inline-flex; align-items: center; gap: 10px; background: none;
+            border: none; color: #fff; font-size: 18px; cursor: pointer;
+            margin-bottom: 40px; transition: all 0.3s ease; text-transform: lowercase;
+        }
+        .back-btn:hover { color: #f4c542; transform: translateX(-5px); }
+        .back-btn::before { content: '←'; font-size: 24px; }
+        .season-title { font-size: 48px; font-weight: bold; text-transform: uppercase; margin-bottom: 50px; }
+
+        /* Сетка эпизодов */
+        .episodes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 30px;
+        }
+        .episode-card {
+            background: #1a1a1a; border-radius: 15px; overflow: hidden;
+            transition: all 0.4s ease; position: relative;
+        }
+        .episode-card.available { cursor: pointer; }
+        .episode-card.available:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 50px rgba(244, 197, 66, 0.4);
+        }
+        .episode-card.upcoming { opacity: 0.6; cursor: not-allowed; }
+        .episode-thumbnail {
+            width: 100%; height: 200px; object-fit: cover;
+            background: #2a2a2a; display: flex; align-items: center; justify-content: center;
+            position: relative;
+        }
+        .episode-thumbnail img { width: 100%; height: 100%; object-fit: cover; }
+        .upcoming .episode-thumbnail::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+        }
+        .episode-info { padding: 20px; }
+        .episode-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+        .episode-title { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .episode-number { font-size: 14px; color: #888; }
+        .episode-status {
+            font-size: 12px; font-weight: bold; padding: 4px 12px;
+            border-radius: 20px; text-transform: lowercase;
+        }
+        .status-released { background: rgba(46, 204, 113, 0.2); color: #2ecc71; }
+        .status-upcoming { background: rgba(230, 126, 34, 0.2); color: #e67e22; }
+        .episode-date { font-size: 13px; margin-top: 8px; }
+        .date-released { color: #2ecc71; }
+        .date-upcoming { color: #e67e22; }
+
+        /* Подвал */
+        footer {
+            background: #060606; padding: 60px 50px; line-height: 1.8;
+            font-size: 13px; color: #aaa; margin-top: 100px;
+        }
+        footer h3 { color: #f4c542; margin-bottom: 20px; font-size: 16px; }
+        footer p { margin-bottom: 15px; }
+        footer ul { list-style: none; margin-left: 20px; }
+        footer li { margin-bottom: 8px; }
+        footer li::before { content: '• '; color: #f4c542; }
+        .credit { text-align: center; margin-top: 40px; padding-top: 30px; border-top: 1px solid #333; font-size: 14px; color: #f4c542; }
+
+        /* 18+ модалка */
+        #age-gate {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(10, 10, 10, 0.98); backdrop-filter: blur(12px);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 9999; padding: 20px; text-align: center;
+        }
+        .age-content {
+            max-width: 720px; background: #1a1a1a; padding: 50px 40px;
+            border-radius: 20px; border: 1px solid #333;
+        }
+        .age-content h2 { font-size: 32px; margin-bottom: 30px; color: #f4c542; text-transform: uppercase; }
+        .age-content p { font-size: 18px; line-height: 1.7; margin-bottom: 40px; color: #ddd; }
+        .age-buttons { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+        .age-btn {
+            padding: 16px 50px; font-size: 18px; font-weight: bold; text-transform: uppercase;
+            border: none; border-radius: 50px; cursor: pointer; transition: all 0.4s ease;
+        }
+        .age-yes { background: #f4c542; color: #0a0a0a; }
+        .age-yes:hover { background: #ffdd6f; transform: scale(1.05); }
+        .age-no { background: transparent; color: #fff; border: 2px solid #f4c542; }
+        .age-no:hover { background: #f4c542; color: #0a0a0a; }
+
+        @media (max-width: 768px) {
+            nav { padding: 15px 20px; }
+            .nav-right { gap: 15px; }
+            .nav-btn { font-size: 14px; }
+            .content { padding: 100px 20px 30px; }
+            .season-title { font-size: 32px; }
+            .episodes-grid { grid-template-columns: 1fr; }
+            footer { padding: 40px 20px; }
+            .age-content { padding: 40px 20px; }
+            .age-content h2 { font-size: 26px; }
+            .age-content p { font-size: 16px; }
+            .age-buttons { flex-direction: column; align-items: center; }
+            .age-btn { width: 280px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 18+ окно -->
+    <div id="age-gate">
+        <div class="age-content">
+            <h2>Возрастное ограничение 18+</h2>
+            <p>Данный сайт содержит материалы с возрастными ограничениями, включая обнаженные части тела и откровенные сцены сексуального характера.<br><br>
+            Входя на сайт, вы подтверждаете, что вам исполнилось 18 лет или вы достигли совершеннолетия в той юрисдикции, из которой вы заходите на сайт, и даете согласие на просмотр материалов откровенного сексуального характера.</p>
+            <div class="age-buttons">
+                <button class="age-btn age-yes" onclick="document.getElementById('age-gate').style.display='none'">мне есть 18</button>
+                <button class="age-btn age-no" onclick="location.href='index.html'">мне нет 18</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Навигация -->
+    <nav>
+        <div class="logo-nav">
+            <img src="heatedrivarly.svg" alt="Heated Rivalry">
+        </div>
+        <div class="nav-right">
+            <button class="nav-btn" onclick="location.href='watch.html'">смотреть</button>
+            <button class="nav-btn" onclick="location.href='index.html#news'">новости</button>
+            <button class="nav-btn" onclick="location.href='friends.html'">друзья</button>
+        </div>
+    </nav>
+
+    <!-- Контент — ВСЁ ТОЧНО КАК БЫЛО -->
+    <div class="content">
+        <button class="back-btn" onclick="location.href='index.html'">назад</button>
+        <h1 class="season-title">1 сезон</h1>
+        <div class="episodes-grid">
+            <!-- Эпизод 1 - Доступен -->
+            <div class="episode-card available" onclick="location.href='episode1.html'">
+                <div class="episode-thumbnail">
+                    <img src="ep1.png" alt="Новички">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Новички</div>
+                            <div class="episode-number">1 серия</div>
+                        </div>
+                        <span class="episode-status status-released">вышла</span>
+                    </div>
+                    <div class="episode-date date-released">28.11.2025</div>
+                </div>
+            </div>
+
+            <!-- Эпизод 2 - Доступен -->
+            <div class="episode-card available" onclick="location.href='episode2.html'">
+                <div class="episode-thumbnail">
+                    <img src="ep2.png" alt="Олимпийцы">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Олимпийцы</div>
+                            <div class="episode-number">2 серия</div>
+                        </div>
+                        <span class="episode-status status-released">вышла</span>
+                    </div>
+                    <div class="episode-date date-released">28.11.2025</div>
+                </div>
+            </div>
+
+            <!-- Эпизод 3 - Скоро -->
+            <div class="episode-card upcoming">
+                <div class="episode-thumbnail">
+                    <img src="soon.png" alt="Эпизод #1.3">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Эпизод #1.3</div>
+                            <div class="episode-number">3 серия</div>
+                        </div>
+                        <span class="episode-status status-upcoming">скоро</span>
+                    </div>
+                    <div class="episode-date date-upcoming">05.12.2025</div>
+                </div>
+            </div>
+
+            <!-- Эпизод 4 - Скоро -->
+            <div class="episode-card upcoming">
+                <div class="episode-thumbnail">
+                    <img src="soon.png" alt="Роза">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Роза</div>
+                            <div class="episode-number">4 серия</div>
+                        </div>
+                        <span class="episode-status status-upcoming">скоро</span>
+                    </div>
+                    <div class="episode-date date-upcoming">12.12.2025</div>
+                </div>
+            </div>
+
+            <!-- Эпизод 5 - Скоро -->
+            <div class="episode-card upcoming">
+                <div class="episode-thumbnail">
+                    <img src="soon.png" alt="Я поверю во всё">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Я поверю во всё</div>
+                            <div class="episode-number">5 серия</div>
+                        </div>
+                        <span class="episode-status status-upcoming">скоро</span>
+                    </div>
+                    <div class="episode-date date-upcoming">19.12.2025</div>
+                </div>
+            </div>
+
+            <!-- Эпизод 6 - Скоро -->
+            <div class="episode-card upcoming">
+                <div class="episode-thumbnail">
+                    <img src="soon.png" alt="Коттедж">
+                </div>
+                <div class="episode-info">
+                    <div class="episode-header">
+                        <div>
+                            <div class="episode-title">Коттедж</div>
+                            <div class="episode-number">6 серия</div>
+                        </div>
+                        <span class="episode-status status-upcoming">скоро</span>
+                    </div>
+                    <div class="episode-date date-upcoming">26.12.2025</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал — без изменений -->
+    <footer>
+        <p class="credit">by: splus prod.</p>
+        <h3>Внимание!</h3>
+        <p>Доступ к данному веб-ресурсу предоставляется исключительно в информационно-ознакомительных целях. Администрация сайта заявляет, что не осуществляет распространение, формирование, продвижение, навязывание либо одобрение информации, которая может быть расценена как пропаганда нетрадиционных сексуальных отношений или предпочтений, в соответствии с действующим законодательством Российской Федерации.</p>
+        <p>Любые материалы, включающие художественные произведения, видеоконтент, изображения, описания персонажей или сюжетные линии, не предназначены для формирования у аудитории интереса, склонности, позитивного отношения либо нормализации нетрадиционных сексуальных отношений, а представляют собой исключительно элементы авторского замысла сторонних правообладателей.</p>
+        <p><strong>Администрация ресурса:</strong></p>
+        <ul>
+            <li>не осуществляет редактирование произведений в целях изменения их художественного вида;</li>
+            <li>не выражает одобрения, поддержки или продвижения какой-либо модели поведения, ориентации или личных взглядов;</li>
+            <li>не преследует цели воздействия на мировоззрение, ценности, установки или поведение пользователей;</li>
+            <li>не проводит информационных кампаний, направленных на изменение социальных, культурных или моральных ориентиров аудитории.</li>
+        </ul>
+        <p>Пользователь подтверждает, что заходит на сайт по собственной инициативе, осознавая характер художественных произведений, и несёт личную ответственность за интерпретацию увиденного.</p>
+        <p>Материалы могут содержать элементы вымышленных событий и персонажей, не имеющих отношения к продвижению реальных практик или образа жизни. Сайт и его администрация соблюдают требования законодательства РФ, включая:</p>
+        <ul>
+            <li>Федеральный закон «О защите детей от информации, причиняющей вред их здоровью и развитию»;</li>
+            <li>Федеральные нормы, касающиеся запрета так называем пропаганды нетрадиционных сексуальных отношений;</li>
+            <li>Правила информационного размещения и ограничения контента.</li>
+        </ul>
+        <p>В случае, если какой-либо материал может быть истолкован неоднозначно, администрация готова удалять или ограничивать доступ к нему по запросу уполномоченных органов.</p>
+        <p><strong>Просмотр контента допускается только совершеннолетними пользователями.</strong></p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Жаркое Соперничество</title>
+
+    <!-- ФАВИКОН (иконка вкладки) -->
+    <link rel="icon" type="image/svg+xml" href="heatedrivarly.svg">
+    <link rel="alternate icon" type="image/png" href="favicon.png"> <!-- на случай, если svg не поддерживается -->
+    <link rel="apple-touch-icon" href="heatedrivarly.svg">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* Меню */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 50px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.8);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s ease;
+        }
+
+        nav.scrolled {
+            padding: 15px 50px;
+            background: rgba(10, 10, 10, 0.95);
+        }
+
+        .logo-nav {
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+
+        nav.scrolled .logo-nav {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+        }
+
+        .logo-nav svg {
+            height: 40px;
+            width: auto;
+        }
+
+        .logo-nav img {
+            height: 40px;
+            width: auto;
+        }
+
+        .nav-left {
+            font-size: 24px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-transform: lowercase;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 30px;
+        }
+
+        .nav-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: lowercase;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-btn::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #f4c542;
+            transition: width 0.3s ease;
+        }
+
+        .nav-btn:hover::after {
+            width: 100%;
+        }
+
+        /* Бегущая строка */
+        .ticker-wrap {
+            position: fixed;
+            top: 70px;
+            width: 100%;
+            overflow: hidden;
+            background: #f4c542;
+            padding: 12px 0;
+            z-index: 1001;
+        }
+
+        .ticker {
+            display: flex;
+            animation: scroll 20s linear infinite;
+            white-space: nowrap;
+        }
+
+        .ticker-item {
+            color: #0a0a0a;
+            font-size: 18px;
+            font-weight: bold;
+            padding: 0 50px;
+            text-transform: uppercase;
+        }
+
+        .ticker-link {
+            text-decoration: underline;
+            cursor: pointer;
+            transition: opacity 0.3s;
+        }
+
+        .ticker-link:hover {
+            opacity: 0.7;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        /* Секция с трейлером */
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 116px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1;
+        }
+
+        .hero iframe {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 1903px;
+            height: 825px;
+            transform: translate(-50%, -50%) scale(2);
+            border: none;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            animation: fadeIn 1s ease;
+        }
+
+        .hero-logo {
+            width: 400px;
+            max-width: 80vw;
+            margin-bottom: 40px;
+            filter: drop-shadow(0 10px 30px rgba(244, 197, 66, 0.3));
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .hero-logo img {
+            width: 100%;
+            height: auto;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .watch-btn {
+            background: #f4c542;
+            color: #0a0a0a;
+            border: none;
+            padding: 18px 45px;
+            font-size: 18px;
+            font-weight: bold;
+            text-transform: uppercase;
+            cursor: pointer;
+            border-radius: 50px;
+            transition: all 0.4s ease;
+            box-shadow: 0 5px 25px rgba(244, 197, 66, 0.4);
+        }
+
+        .watch-btn:hover {
+            transform: rotate(-3deg) scale(1.05);
+            box-shadow: 0 8px 35px rgba(244, 197, 66, 0.6);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Новости */
+        .news-section {
+            padding: 100px 50px;
+            background: #0f0f0f;
+        }
+
+        .news-title {
+            font-size: 48px;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 50px;
+            border-bottom: 3px solid #f4c542;
+            display: inline-block;
+            padding-bottom: 10px;
+        }
+
+        .news-item {
+            background: #1a1a1a;
+            border-radius: 15px;
+            overflow: hidden;
+            max-width: 350px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .news-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(244, 197, 66, 0.3);
+        }
+
+        .news-item img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .news-content {
+            padding: 20px;
+        }
+
+        .news-date {
+            color: #f4c542;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .news-heading {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+
+        .news-description {
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* Подвал */
+        footer {
+            background: #060606;
+            padding: 60px 50px;
+            line-height: 1.8;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        footer h3 {
+            color: #f4c542;
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        footer p {
+            margin-bottom: 15px;
+        }
+
+        footer ul {
+            list-style: none;
+            margin-left: 20px;
+        }
+
+        footer li {
+            margin-bottom: 8px;
+        }
+
+        footer li::before {
+            content: '• ';
+            color: #f4c542;
+        }
+
+        .credit {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #333;
+            font-size: 14px;
+            color: #f4c542;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 15px 20px;
+            }
+
+            .nav-right {
+                gap: 15px;
+            }
+
+            .nav-btn {
+                font-size: 14px;
+            }
+
+            .ticker-item {
+                font-size: 14px;
+                padding: 0 30px;
+            }
+
+            .hero-logo {
+                width: 300px;
+            }
+
+            .watch-btn {
+                padding: 15px 35px;
+                font-size: 16px;
+            }
+
+            .news-section {
+                padding: 60px 20px;
+            }
+
+            .news-title {
+                font-size: 32px;
+            }
+
+            .news-item img {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            footer {
+                padding: 40px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Навигация -->
+    <nav id="navbar">
+        <div class="nav-left">
+            <div class="logo-nav">
+                <img src="heatedrivarly.svg" alt="Heated Rivalry">
+            </div>
+        </div>
+        <div class="nav-right">
+            <button class="nav-btn" onclick="location.href='watch.html'">смотреть</button>
+            <button class="nav-btn" onclick="scrollToNews()">новости</button>
+            <button class="nav-btn" onclick="location.href='friends.html'">друзья</button>
+        </div>
+    </nav>
+
+    <!-- Бегущая строка -->
+    <div class="ticker-wrap">
+        <div class="ticker">
+            <span class="ticker-item">1 и 2 СЕРИЯ УЖЕ НА НАШЕМ САЙТЕ, <span class="ticker-link" onclick="location.href='watch.html'">СМОТРЕТЬ</span></span>
+            <span class="ticker-item">1 и 2 СЕРИЯ УЖЕ НА НАШЕМ САЙТЕ, <span class="ticker-link" onclick="location.href='watch.html'">СМОТРЕТЬ</span></span>
+            <span class="ticker-item">1 и 2 СЕРИЯ УЖЕ НА НАШЕМ САЙТЕ, <span class="ticker-link" onclick="location.href='watch.html'">СМОТРЕТЬ</span></span>
+        </div>
+    </div>
+
+    <!-- Героическая секция с трейлером -->
+    <section class="hero">
+        <iframe id="trailer-iframe" src="https://dzen.ru/embed/oLUZq2ksKAAA?from_block=partner&from=zen&mute=1&autoplay=1&loop=1&controls=0" allow="autoplay; fullscreen; accelerometer; gyroscope; picture-in-picture; encrypted-media" frameborder="0" scrolling="no"></iframe>
+        <div class="hero-content">
+            <div class="hero-logo">
+                <img src="heatedrivarly.svg" alt="Heated Rivalry">
+            </div>
+            <button class="watch-btn" onclick="location.href='watch.html'">смотреть</button>
+        </div>
+    </section>
+
+    <!-- Новости -->
+    <section class="news-section" id="news">
+        <h2 class="news-title">новости</h2>
+        <div class="news-item">
+            <img src="news1.png" alt="1 и 2 серия вышли">
+            <div class="news-content">
+                <div class="news-date">28.11.2025</div>
+                <h3 class="news-heading">1 и 2 серия вышли! уже на нашем сайте.</h3>
+                <p class="news-description">Смотрите первые две серии сериала "Жаркое Соперничество" уже сейчас!</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Подвал -->
+    <footer>
+        <p class="credit">by: splus prod.</p>
+        <h3>Внимание!</h3>
+        <p>Доступ к данному веб-ресурсу предоставляется исключительно в информационно-ознакомительных целях. Администрация сайта заявляет, что не осуществляет распространение, формирование, продвижение, навязывание либо одобрение информации, которая может быть расценена как пропаганда нетрадиционных сексуальных отношений или предпочтений, в соответствии с действующим законодательством Российской Федерации.</p>
+
+        <p>Любые материалы, включающие художественные произведения, видеоконтент, изображения, описания персонажей или сюжетные линии, не предназначены для формирования у аудитории интереса, склонности, позитивного отношения либо нормализации нетрадиционных сексуальных отношений, а представляют собой исключительно элементы авторского замысла сторонних правообладателей.</p>
+
+        <p><strong>Администрация ресурса:</strong></p>
+        <ul>
+            <li>не осуществляет редактирование произведений в целях изменения их художественного вида;</li>
+            <li>не выражает одобрения, поддержки или продвижения какой-либо модели поведения, ориентации или личных взглядов;</li>
+            <li>не преследует цели воздействия на мировоззрение, ценности, установки или поведение пользователей;</li>
+            <li>не проводит информационных кампаний, направленных на изменение социальных, культурных или моральных ориентиров аудитории.</li>
+        </ul>
+
+        <p>Пользователь подтверждает, что заходит на сайт по собственной инициативе, осознавая характер художественных произведений, и несёт личную ответственность за интерпретацию увиденного.</p>
+
+        <p>Материалы могут содержать элементы вымышленных событий и персонажей, не имеющих отношения к продвижению реальных практик или образа жизни. Сайт и его администрация соблюдают требования законодательства РФ, включая:</p>
+        <ul>
+            <li>Федеральный закон «О защите детей от информации, причиняющей вред их здоровью и развитию»;</li>
+            <li>Федеральные нормы, касающиеся запрета так называемой «пропаганды нетрадиционных сексуальных отношений»;</li>
+            <li>Правила информационного размещения и ограничения контента.</li>
+        </ul>
+
+        <p>В случае, если какой-либо материал может быть истолкован неоднозначно, администрация готова удалять или ограничивать доступ к нему по запросу уполномоченных органов.</p>
+
+        <p><strong>Просмотр контента допускается только совершеннолетними пользователями.</strong></p>
+    </footer>
+
+    <script>
+        // Скролл эффект для навигации
+        const navbar = document.getElementById('navbar');
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Автоматическая перезагрузка трейлера каждые 3 минуты (180000 мс)
+        // Это поможет зациклить видео, если Дзен не поддерживает loop
+        const trailerIframe = document.getElementById('trailer-iframe');
+        const trailerSrc = trailerIframe.src;
+
+        function reloadTrailer() {
+            trailerIframe.src = trailerSrc;
+        }
+
+        // Перезагрузка каждые 3 минуты (можно изменить время)
+        setInterval(reloadTrailer, 180000);
+
+        // Также можно попробовать отследить окончание видео и перезагрузить сразу
+        // Но это может не работать из-за ограничений cross-origin iframe
+
+        // Плавный скролл к новостям
+        function scrollToNews() {
+            document.getElementById('news').scrollIntoView({
+                behavior: 'smooth'
+            });
+        }
+
+        // Предотвращение дублирования бегущей строки
+        const ticker = document.querySelector('.ticker');
+        ticker.innerHTML += ticker.innerHTML;
+    </script>
+</body>
+</html>
